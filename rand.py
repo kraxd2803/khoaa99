@@ -11,6 +11,26 @@ def get_audio_base64(file_path):
         return base64.b64encode(data).decode()
     return None
 
+def play_bgm(file_path):
+    base64_audio = get_audio_base64(file_path)
+    if base64_audio:
+        # Sử dụng thuộc tính controls để kiểm tra xem nhạc có load được không
+        # Sau khi nhạc chạy ok, bạn có thể xóa chữ 'controls' và thêm 'style="display:none"'
+        audio_html = f"""
+            <audio autoplay loop id="bgm-player" controls> 
+                <source src="data:audio/mp3;base64,{base64_audio}" type="audio/mp3">
+            </audio>
+            <script>
+                var audio = document.getElementById("bgm-player");
+                audio.volume = 0.3;
+                // Buộc trình duyệt phát lại nếu bị chặn
+                document.body.addEventListener("click", function() {{
+                    audio.play();
+                }}, {{ once: true }});
+            </script>
+        """
+        st.components.v1.html(audio_html, height=50)
+
 def play_local_audio(file_path):
     base64_audio = get_audio_base64(file_path)
     if base64_audio:
@@ -34,7 +54,10 @@ if 'p' not in st.session_state:
 st.set_page_config(page_title="KHOAA777", page_icon="💸")
 st.title("VÒNG QUAY MAY MẮN🎰")
 st.caption("Made by Đăng Khoa 🔰")
+on_music = st.toggle("Nhạc nền", value=False)
 
+if on_music==True:
+    play_bgm("bgm.mp3")
 emoji_list = ["🍎", "🍊", "🍇", "🍓", "🍉", "🍒"]
 
 
@@ -86,4 +109,5 @@ if st.button("QUAY SỐ", use_container_width=True):
     else:
         st.session_state.last_result = "loss"
         st.session_state.p-=50
+
     st.rerun()
